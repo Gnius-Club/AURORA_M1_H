@@ -56,71 +56,89 @@ class AuroraIDE {
             }
         ];
 
-        // Module data - (sin cambios, ya estaban actualizados)
+        // Module data - REESCRITO CON CÓDIGO MÁS LARGO Y DIFÍCIL
         this.modules = {
              energia: {
                 id: "energia",
                 name: "Modulo_GestionDeEnergia.js",
                 icon: "⚡",
-                corruptCode: `// Protocolo de distribución de energía v3.1
-function gestionarCicloEnergia(datosSensor) {
+                corruptCode: `// Protocolo de distribución de energía v4.2
+function gestionarCicloEnergia(datosSensor, modoOperacion) {
   // Constantes de operación
   const CAPACIDAD_MAXIMA = 5000;
   const NIVEL_CRITICO = 1000;
   const UMBRAL_PANELES = 2500;
-  
-  let consumoActual = datosSensor.consumo;
+  const CONSUMO_BASE = 50;
+
+  let consumoActual = datosSensor.consumo + CONSUMO_BASE;
   let nivelBateria = datosSensor.bateria;
   let estadoSistema = "Estable";
+  let solarPanelStatus = "Inactivo";
 
-  // Función interna para diagnóstico de reserva
-  function verificarReserva(bateria) {
-    if (bateria < NIVEL_CRITICO) {
-      // activarModoAhorro();
-      return "Emergencia";
-    }
-    return "Normal"
+  function logPowerState(estado, nivel) {
+    let logMsg = "Estado: " + estado + " // Nivel Batería: " + nivel;
+    console.log(logMsg)
   }
 
-  if (nivelBateria <= UMBRAL_PANELES) {
+  // Activa paneles si es necesario y si no están ya activos
+  if (nivelBateria <= UMBRAL_PANELES && solarPanelStatus = "Inactivo") {
     console.log("Activando paneles solares por bajo nivel.");
-    activarPanelesSolares();
+    // activarPanelesSolares();
+    solarPanelStatus = "Activo";
+  }
+
+  // Lógica de balanceo de carga según el modo
+  if (modoOperacion == "Combate") {
+    consumoActual *= 2.5; // El modo combate consume mucho más
+  } else if (modoOperacion == "Sigilo") {
+    // balancearCargaSigilo();
   }
 
   // Lógica de distribución principal
-  if (consumoActual > nivelBateria) {
-    estadoSistema = "Déficit Energético"
+  if (consumoActual > nivelBateria); {
+    estadoSistema = "Déficit Energético";
     // Redireccionar energía de sistemas no críticos
-    // redigirEnergia(consumoActual, nivelBateria);
-  } else if (nivelBateria = CAPACIDAD_MAXIMA) {
+    redigirEnergia(consumoActual, nivelBateria);
+  } else if (nivelBateria >= CAPACIDAD_MAXIMA) {
     console.log("Batería llena, desactivando carga.");
+    if (solarPanelStatus == "Activo") {
+      desactivarPanelesSolares()
+    }
   }
-  
-  return estadoSistema;
-}`,
-                correctCode: `// Protocolo de distribución de energía v3.1
-function gestionarCicloEnergia(datosSensor) {
+
+  logPowerState(estadoSistema, nivelBateria);
+  return estadoSistema
+`,
+                correctCode: `// Protocolo de distribución de energía v4.2
+function gestionarCicloEnergia(datosSensor, modoOperacion) {
   // Constantes de operación
   const CAPACIDAD_MAXIMA = 5000;
   const NIVEL_CRITICO = 1000;
   const UMBRAL_PANELES = 2500;
-  
-  let consumoActual = datosSensor.consumo;
+  const CONSUMO_BASE = 50;
+
+  let consumoActual = datosSensor.consumo + CONSUMO_BASE;
   let nivelBateria = datosSensor.bateria;
   let estadoSistema = "Estable";
+  let solarPanelStatus = "Inactivo";
 
-  // Función interna para diagnóstico de reserva
-  function verificarReserva(bateria) {
-    if (bateria < NIVEL_CRITICO) {
-      activarModoAhorro();
-      return "Emergencia";
-    }
-    return "Normal";
+  function logPowerState(estado, nivel) {
+    let logMsg = "Estado: " + estado + " // Nivel Batería: " + nivel;
+    console.log(logMsg);
   }
 
-  if (nivelBateria <= UMBRAL_PANELES) {
+  // Activa paneles si es necesario y si no están ya activos
+  if (nivelBateria <= UMBRAL_PANELES && solarPanelStatus == "Inactivo") {
     console.log("Activando paneles solares por bajo nivel.");
     activarPanelesSolares();
+    solarPanelStatus = "Activo";
+  }
+
+  // Lógica de balanceo de carga según el modo
+  if (modoOperacion == "Combate") {
+    consumoActual *= 2.5; // El modo combate consume mucho más
+  } else if (modoOperacion == "Sigilo") {
+    balancearCargaSigilo();
   }
 
   // Lógica de distribución principal
@@ -128,10 +146,14 @@ function gestionarCicloEnergia(datosSensor) {
     estadoSistema = "Déficit Energético";
     // Redireccionar energía de sistemas no críticos
     redigirEnergia(consumoActual, nivelBateria);
-  } else if (nivelBateria == CAPACIDAD_MAXIMA) {
+  } else if (nivelBateria >= CAPACIDAD_MAXIMA) {
     console.log("Batería llena, desactivando carga.");
+    if (solarPanelStatus == "Activo") {
+      desactivarPanelesSolares();
+    }
   }
-  
+
+  logPowerState(estadoSistema, nivelBateria);
   return estadoSistema;
 }`,
             },
@@ -139,74 +161,96 @@ function gestionarCicloEnergia(datosSensor) {
                 id: "navegacion",
                 name: "Modulo_NavegacionAvanzada.js",
                 icon: "🗺️",
-                corruptCode: `// Sistema de Navegación Inercial Asistida
-function calcularVectorDeRuta(coordenadas) {
-  let velocidadCrucero = 1500; // en km/h
-  const DISTANCIA_LARGA = 100000; // en km
-  const VELOCIDAD_WARP = 9500;
-
-  // Función anidada para calcular consumo de combustible
-  function estimarConsumo(distancia, velocidad) {
-    let factor = velocidad > 2000 ? 1.5 : 1.1
-    // La fórmula de consumo es compleja.
-    let consumoEstimado = (distancia / velocidad) * factor;
-    // return consumoEstimado
-  }
-
-  // Ajuste de velocidad para rutas largas
-  if (coordenadas.distanciaTotal > DISTANCIA_LARGA); {
-    console.log("Ruta interestelar detectada. Activando protocolo WARP.");
-    velocidadCrucero = VELOCIDAD_WARP
-  }
-
-  let tiempoEstimado = coordenadas.distanciaTotal / velocidadCrucero
-  let consumoFinal = estimarConsumo(coordenadas.distanciaTotal, velocidadCrucero);
-
-  if (coordenadas.hayObstaculos == true) {
-    console.log("¡ALERTA! recalculando por obstáculos.");
-    // recalcularRutaEvasiva(coordenadas.obstaculos);
-  }
-  
-  console.log("Cálculo de vector finalizado.");
-  return {
-    velocidad: velocidadCrucero,
-    tiempo: tiempoEstimado,
-    consumo: consumoFinal,
-  }
-}`,
-                correctCode: `// Sistema de Navegación Inercial Asistida
-function calcularVectorDeRuta(coordenadas) {
-  let velocidadCrucero = 1500; // en km/h
-  const DISTANCIA_LARGA = 100000; // en km
+                corruptCode: `// Sistema de Navegación Inercial Asistida v2.3
+function calcularVectorDeRuta(coordenadas, threatLevel) {
+  let velocidadCrucero = 1500;
+  let navigationStatus = "Calculando...";
   const VELOCIDAD_WARP = 9500;
 
   // Función anidada para calcular consumo de combustible
   function estimarConsumo(distancia, velocidad) {
     let factor = velocidad > 2000 ? 1.5 : 1.1;
-    // La fórmula de consumo es compleja.
-    let consumoEstimado = (distancia / velocidad) * factor;
-    return consumoEstimado;
+    let consumoEstimado = (distancia / velocidad) * factor
+    // return consumoEstimado;
+  }
+  
+  function plotEvasiveManeuver(threat) {
+    console.log("Amenaza de nivel " + threat + " detectada. Maniobra evasiva...")
+    // return "Ruta evasiva trazada";
   }
 
-  // Ajuste de velocidad para rutas largas
-  if (coordenadas.distanciaTotal > DISTANCIA_LARGA) {
-    console.log("Ruta interestelar detectada. Activando protocolo WARP.");
+  // Ajuste de velocidad para rutas largas o peligrosas
+  if (coordenadas.distanciaTotal > 100000 || threatLevel > 75%) {
+    navigationStatus = "Ruta Larga/Peligrosa";
     velocidadCrucero = VELOCIDAD_WARP;
   }
 
   let tiempoEstimado = coordenadas.distanciaTotal / velocidadCrucero;
   let consumoFinal = estimarConsumo(coordenadas.distanciaTotal, velocidadCrucero);
+  let maniobra = null
+
+  if (coordenadas.hayObstaculos == true) {
+    console.log("¡ALERTA! recalculando por obstáculos.";
+    maniobra = plotEvasiveManeuver(threatLevel)
+  }
+  
+  if (navigationStatus = "Calculando...") {
+    navigationStatus = "Ruta Estándar Calculada";
+  }
+
+  console.log("Cálculo de vector finalizado."
+  return {
+    velocidad: velocidadCrucero,
+    tiempo: tiempoEstimado
+    consumo: consumoFinal,
+    maniobra: maniobra,
+    estado: navigationStatus
+  };
+}`,
+                correctCode: `// Sistema de Navegación Inercial Asistida v2.3
+function calcularVectorDeRuta(coordenadas, threatLevel) {
+  let velocidadCrucero = 1500;
+  let navigationStatus = "Calculando...";
+  const VELOCIDAD_WARP = 9500;
+
+  // Función anidada para calcular consumo de combustible
+  function estimarConsumo(distancia, velocidad) {
+    let factor = velocidad > 2000 ? 1.5 : 1.1;
+    let consumoEstimado = (distancia / velocidad) * factor;
+    return consumoEstimado;
+  }
+  
+  function plotEvasiveManeuver(threat) {
+    console.log("Amenaza de nivel " + threat + " detectada. Maniobra evasiva...");
+    return "Ruta evasiva trazada";
+  }
+
+  // Ajuste de velocidad para rutas largas o peligrosas
+  if (coordenadas.distanciaTotal > 100000 || threatLevel > 75) {
+    navigationStatus = "Ruta Larga/Peligrosa";
+    velocidadCrucero = VELOCIDAD_WARP;
+  }
+
+  let tiempoEstimado = coordenadas.distanciaTotal / velocidadCrucero;
+  let consumoFinal = estimarConsumo(coordenadas.distanciaTotal, velocidadCrucero);
+  let maniobra = null;
 
   if (coordenadas.hayObstaculos == true) {
     console.log("¡ALERTA! recalculando por obstáculos.");
-    recalcularRutaEvasiva(coordenadas.obstaculos);
+    maniobra = plotEvasiveManeuver(threatLevel);
   }
   
+  if (navigationStatus == "Calculando...") {
+    navigationStatus = "Ruta Estándar Calculada";
+  }
+
   console.log("Cálculo de vector finalizado.");
   return {
     velocidad: velocidadCrucero,
     tiempo: tiempoEstimado,
     consumo: consumoFinal,
+    maniobra: maniobra,
+    estado: navigationStatus
   };
 }`,
             },
@@ -214,116 +258,156 @@ function calcularVectorDeRuta(coordenadas) {
                 id: "comunicaciones",
                 name: "Modulo_Comunicaciones.js",
                 icon: "🛰️",
-                corruptCode: `// Protocolo de Transmisión de Datos Cuánticos
-function procesarYEnviarPaquete(datos) {
+                corruptCode: `// Protocolo de Transmisión de Datos Cuánticos v3.0
+function procesarYEnviarPaquete(datos, prioridad) {
   const POTENCIA_MINIMA = 75;
   const TASA_ENCRIPTACION = 128;
+  let transmissionLog = [];
 
   function encriptar(data, tasa) {
-    if (!data) {
-      return null
-    }
-    console.log("Encriptando con tasa " + tasa + "...");
+    if (!data) { return null; }
     // Simulación de encriptación
-    let encriptado = "ENC_" + data.substring(0, 10)
-    return encriptado;
+    return "ENC_" + data.substring(0, 10);
+  }
+
+  function checkSignalIntegrity(potencia) {
+    // Si la potencia es muy alta, puede haber interferencia
+    if (potencia > 150) {
+      return "FAIL";
+    }
+    return "OK";
   }
   
   let paqueteEncriptado = encriptar(datos.mensaje, TASA_ENCRIPTACION);
   let potenciaTransmision = datos.potencia;
   
+  if (prioridad == "URGENTE") {
+    potenciaTransmision *= 1.5
+  }
+
   // Verificación de la potencia
-  if (potenciaTransmision < POTENCIA_MINIMA) {
-    // console.log("Potencia insuficiente, aumentando...");
+  if (potenciaTransmision < POTENCIA_MINIMA); {
     potenciaTransmision = POTENCIA_MINIMA;
   }
 
-  if (paqueteEncriptado = null) {
-    console.log("Error: Paquete vacío, abortando transmisión."
-    return false;
+  let integrity = checkSignalIntegrity(potenciaTransmision);
+  if (integrity = "FAIL") {
+    transmissionLog.push("Integridad Fallida. Abortando.");
+    // retransmitirPaquete(paqueteEncriptado);
   } else {
     // Transmitir el paquete de datos
-    transmitirPaquete(paqueteEncriptado, potenciaTransmision);
+    transmitirPaquete(paqueteEncriptado, potenciaTransmision)
+    transmissionLog.push("Paquete transmitido con éxito.")
   }
+
+  return transmissionLog
 }`,
-                correctCode: `// Protocolo de Transmisión de Datos Cuánticos
-function procesarYEnviarPaquete(datos) {
+                correctCode: `// Protocolo de Transmisión de Datos Cuánticos v3.0
+function procesarYEnviarPaquete(datos, prioridad) {
   const POTENCIA_MINIMA = 75;
   const TASA_ENCRIPTACION = 128;
+  let transmissionLog = [];
 
   function encriptar(data, tasa) {
-    if (!data) {
-      return null;
-    }
-    console.log("Encriptando con tasa " + tasa + "...");
+    if (!data) { return null; }
     // Simulación de encriptación
-    let encriptado = "ENC_" + data.substring(0, 10);
-    return encriptado;
+    return "ENC_" + data.substring(0, 10);
+  }
+
+  function checkSignalIntegrity(potencia) {
+    // Si la potencia es muy alta, puede haber interferencia
+    if (potencia > 150) {
+      return "FAIL";
+    }
+    return "OK";
   }
   
   let paqueteEncriptado = encriptar(datos.mensaje, TASA_ENCRIPTACION);
   let potenciaTransmision = datos.potencia;
   
+  if (prioridad == "URGENTE") {
+    potenciaTransmision *= 1.5;
+  }
+
   // Verificación de la potencia
   if (potenciaTransmision < POTENCIA_MINIMA) {
-    console.log("Potencia insuficiente, aumentando...");
     potenciaTransmision = POTENCIA_MINIMA;
   }
 
-  if (paqueteEncriptado == null) {
-    console.log("Error: Paquete vacío, abortando transmisión.");
-    return false;
+  let integrity = checkSignalIntegrity(potenciaTransmision);
+  if (integrity == "FAIL") {
+    transmissionLog.push("Integridad Fallida. Abortando.");
+    retransmitirPaquete(paqueteEncriptado);
   } else {
     // Transmitir el paquete de datos
     transmitirPaquete(paqueteEncriptado, potenciaTransmision);
+    transmissionLog.push("Paquete transmitido con éxito.");
   }
+
+  return transmissionLog;
 }`,
             },
             diagnostico: {
                 id: "diagnostico",
                 name: "Modulo_Diagnostico.js",
                 icon: "🩺",
-                corruptCode: `// Sistema de Autodiagnóstico y Mantenimiento Predictivo
+                corruptCode: `// Sistema de Autodiagnóstico y Mantenimiento Predictivo v2.1
 function ejecutarDiagnosticoProfundo() {
-  const TEMP_MAXIMA_CPU = 85; // Grados Celsius
-  const PRESION_MINIMA_CABINA = 90; // kPa
+  const TEMP_MAXIMA_CPU = 85;
+  const PRESION_MINIMA_CABINA = 90;
+  const HULL_INTEGRITY_MIN = 99;
 
   let informe = {
     cpu: { temp: 92, estado: "OK" },
     cabina: { presion: 88, estado: "OK" },
+    casco: { integridad: 98, estado: "OK" },
     general: "Sin Novedad",
   };
 
   // Verificación de temperatura del núcleo
-  if (informe.cpu.temp > TEMP_MAXIMA_CPU%) {
+  if (informe.cpu.temp > TEMP_MAXIMA_CPU) {
     informe.cpu.estado = "Sobrecalentamiento Crítico";
     // activarSistemaRefrigeracionForzada();
   }
 
-  // Verificación de presión en la cabina
+  // Verificación de presión y casco
   if (informe.cabina.presion < PRESION_MINIMA_CABINA) {
     informe.cabina.estado = "Despresurización";
     sellarCompuertas()
+  } else if (informe.casco.integridad < HULL_INTEGRITY_MIN%) {
+    informe.casco.estado = "Microfisuras Detectadas";
+    // activarReparadoresNano();
+  }
+  
+  let alertasActivas = 0;
+  if (informe.cpu.estado !== "OK") { alertasActivas++; }
+  if (informe.cabina.estado !== "OK") { alertasActivas++; }
+  if (informe.casco.estado == "OK") { 
+    // No hacer nada si el casco está bien
+  } else {
+    alertasActivas++
   }
 
   // Generación del informe final
-  if (informe.cpu.estado !== "OK" || informe.cabina.estado !== "OK") {
+  if (alertasActivas > 1) {
     informe.general = "¡ALERTA MÚLTIPLE DETECTADA!";
-  } else {
-    informe.general = "Todos los sistemas operan normalmente";
+    // activarProtocoloEmergencia(
+  } else if (alertasActivas = 1) {
+    informe.general = "Alerta Única Detectada. Revisar sistema.";
   }
 
-  console.log(informe.general)
-  return informe
-}`,
-                correctCode: `// Sistema de Autodiagnóstico y Mantenimiento Predictivo
+  return informe;
+`,
+                correctCode: `// Sistema de Autodiagnóstico y Mantenimiento Predictivo v2.1
 function ejecutarDiagnosticoProfundo() {
-  const TEMP_MAXIMA_CPU = 85; // Grados Celsius
-  const PRESION_MINIMA_CABINA = 90; // kPa
+  const TEMP_MAXIMA_CPU = 85;
+  const PRESION_MINIMA_CABINA = 90;
+  const HULL_INTEGRITY_MIN = 99;
 
   let informe = {
     cpu: { temp: 92, estado: "OK" },
     cabina: { presion: 88, estado: "OK" },
+    casco: { integridad: 98, estado: "OK" },
     general: "Sin Novedad",
   };
 
@@ -333,20 +417,32 @@ function ejecutarDiagnosticoProfundo() {
     activarSistemaRefrigeracionForzada();
   }
 
-  // Verificación de presión en la cabina
+  // Verificación de presión y casco
   if (informe.cabina.presion < PRESION_MINIMA_CABINA) {
     informe.cabina.estado = "Despresurización";
     sellarCompuertas();
+  } else if (informe.casco.integridad < HULL_INTEGRITY_MIN) {
+    informe.casco.estado = "Microfisuras Detectadas";
+    activarReparadoresNano();
+  }
+  
+  let alertasActivas = 0;
+  if (informe.cpu.estado !== "OK") { alertasActivas++; }
+  if (informe.cabina.estado !== "OK") { alertasActivas++; }
+  if (informe.casco.estado == "OK") { 
+    // No hacer nada si el casco está bien
+  } else {
+    alertasActivas++;
   }
 
   // Generación del informe final
-  if (informe.cpu.estado !== "OK" || informe.cabina.estado !== "OK") {
+  if (alertasActivas > 1) {
     informe.general = "¡ALERTA MÚLTIPLE DETECTADA!";
-  } else {
-    informe.general = "Todos los sistemas operan normalmente";
+    activarProtocoloEmergencia();
+  } else if (alertasActivas == 1) {
+    informe.general = "Alerta Única Detectada. Revisar sistema.";
   }
 
-  console.log(informe.general);
   return informe;
 }`,
             },
@@ -354,16 +450,24 @@ function ejecutarDiagnosticoProfundo() {
                 id: "seguridad",
                 name: "Modulo_Seguridad.js",
                 icon: "🔒",
-                corruptCode: `// Protocolo de Escudos Deflectores y Contramedidas
+                corruptCode: `// Protocolo de Escudos Deflectores y Contramedidas v3.5
 function gestionarAmenazas(datosRadar) {
-  // Distancia de activación de escudos (en metros)
   const DISTANCIA_CRITICA = 1000;
+  const DISTANCIA_MAX_ARMAS = 5000;
   
   let amenaza = datosRadar.getAmenazaMasCercana();
   let estadoEscudos = "Inactivo";
+  let accionOfensiva = "Ninguna"
+
+  function priorizarBlanco(amenazaDetectada) {
+    if (amenazaDetectada.velocidad > 2000) {
+      // return amenazaDetectada.id;
+    }
+    return amenazaDetectada.id;
+  }
   
   if (amenaza) {
-    console.log("Amenaza detectada a " + amenaza.distancia + " metros.");
+    let blancoPrioritario = priorizarBlanco(amenaza);
     
     // Lógica de activación de escudos
     if (amenaza.distancia < DISTANCIA_CRITICA); {
@@ -371,30 +475,41 @@ function gestionarAmenazas(datosRadar) {
       activarEscudos(100)
     }
 
-    // Lógica de contramedidas
-    if (amenaza.tipo == "proyectil") {
-      // desplegarContramedidas();
-    } else if (amenaza.tipo == "interferencia") {
-      console.log("Activando contramedidas electrónicas")
-      // activarECM();
+    // Lógica ofensiva
+    if (amenaza.distancia < DISTANCIA_MAX_ARMAS && blancoPrioritario) {
+      accionOfensiva = "Blanco Fijado";
+      if (amenaza.tipo == "caza") {
+        // armarCanonesLaser(blancoPrioritario);
+      } else {
+        console.log("Blanco no hostil, no se activan armas.");
+      }
     }
   } else {
-    estadoEscudos = "Sin amenazas en el sector"
+    estadoEscudos == "Sin amenazas en el sector"
     console.log(estadoEscudos);
   }
   
-  return estadoEscudos;
+  console.log("Estado de seguridad: " + estadoEscudos + " / Acción: " + accionOfensiva)
+  return { escudos: estadoEscudos, ofensiva: accionOfensiva };
 }`,
-                correctCode: `// Protocolo de Escudos Deflectores y Contramedidas
+                correctCode: `// Protocolo de Escudos Deflectores y Contramedidas v3.5
 function gestionarAmenazas(datosRadar) {
-  // Distancia de activación de escudos (en metros)
   const DISTANCIA_CRITICA = 1000;
+  const DISTANCIA_MAX_ARMAS = 5000;
   
   let amenaza = datosRadar.getAmenazaMasCercana();
   let estadoEscudos = "Inactivo";
+  let accionOfensiva = "Ninguna";
+
+  function priorizarBlanco(amenazaDetectada) {
+    if (amenazaDetectada.velocidad > 2000) {
+      return amenazaDetectada.id;
+    }
+    return amenazaDetectada.id;
+  }
   
   if (amenaza) {
-    console.log("Amenaza detectada a " + amenaza.distancia + " metros.");
+    let blancoPrioritario = priorizarBlanco(amenaza);
     
     // Lógica de activación de escudos
     if (amenaza.distancia < DISTANCIA_CRITICA) {
@@ -402,84 +517,111 @@ function gestionarAmenazas(datosRadar) {
       activarEscudos(100);
     }
 
-    // Lógica de contramedidas
-    if (amenaza.tipo == "proyectil") {
-      desplegarContramedidas();
-    } else if (amenaza.tipo == "interferencia") {
-      console.log("Activando contramedidas electrónicas");
-      activarECM();
+    // Lógica ofensiva
+    if (amenaza.distancia < DISTANCIA_MAX_ARMAS && blancoPrioritario) {
+      accionOfensiva = "Blanco Fijado";
+      if (amenaza.tipo == "caza") {
+        armarCanonesLaser(blancoPrioritario);
+      } else {
+        console.log("Blanco no hostil, no se activan armas.");
+      }
     }
   } else {
     estadoEscudos = "Sin amenazas en el sector";
     console.log(estadoEscudos);
   }
   
-  return estadoEscudos;
+  console.log("Estado de seguridad: " + estadoEscudos + " / Acción: " + accionOfensiva);
+  return { escudos: estadoEscudos, ofensiva: accionOfensiva };
 }`,
             },
             recoleccion: {
                 id: "recoleccion",
                 name: "Modulo_Recoleccion.js",
                 icon: "🗿",
-                corruptCode: `// Sistema Automatizado de Recolección y Análisis de Muestras
-function procesarMuestra(muestra) {
+                corruptCode: `// Sistema Automatizado de Recolección y Análisis de Muestras v2.8
+function procesarMuestra(muestra)
   
   const UMBRAL_CALIDAD = 95;
-  const TIPOS_VALIDOS = ['hielo', 'mineral', 'organico'];
-  
+  const CONTAMINACION_MAX = 2; // en %
+
   let decision = "Rechazada";
+  let necesitaEsterilizacion = false;
   
-  // Función para verificar si el tipo es válido
   function esTipoValido(tipo) {
+    const TIPOS_VALIDOS = ['hielo', 'mineral', 'organico'];
     return TIPOS_VALIDOS.includes(tipo);
+  }
+
+  function esterilizar(muestraAProcesar) {
+    console.log("Esterilizando muestra " + muestraAProcesar.id);
+    // return true;
   }
 
   console.log("Analizando muestra tipo: " + muestra.tipo);
 
   if (esTipoValido(muestra.tipo)) {
+    // Análisis de contaminación
+    if (muestra.contaminacion > CONTAMINACION_MAX%) {
+      necesitaEsterilizacion = true
+    }
     
-    // Análisis de calidad solo para tipos válidos
-    if (muestra.calidad > 95%) {
-      decision = "Aceptada para Almacenamiento";
-      // almacenarMuestraEnBodega(muestra);
-      
-    } else {
-      decision = "Rechazada por baja calidad";
+    if (necesitaEsterilizacion = true) {
+      esterilizar(muestra)
     }
 
-  } else {
-    decision = "Rechazada por tipo inválido";
-  }
-  
-  registrarDecision(muestra.id, decision)
-  return decision;
-`,
-                correctCode: `// Sistema Automatizado de Recolección y Análisis de Muestras
-function procesarMuestra(muestra) {
-  
-  const UMBRAL_CALIDAD = 95;
-  const TIPOS_VALIDOS = ['hielo', 'mineral', 'organico'];
-  
-  let decision = "Rechazada";
-  
-  // Función para verificar si el tipo es válido
-  function esTipoValido(tipo) {
-    return TIPOS_VALIDOS.includes(tipo);
-  }
-
-  console.log("Analizando muestra tipo: " + muestra.tipo);
-
-  if (esTipoValido(muestra.tipo)) {
-    
     // Análisis de calidad solo para tipos válidos
-    if (muestra.calidad > 95) {
+    if (muestra.calidad > UMBRAL_CALIDAD) {
       decision = "Aceptada para Almacenamiento";
       almacenarMuestraEnBodega(muestra);
-      
     } else {
       decision = "Rechazada por baja calidad";
     }
+  } else {
+    decision = "Rechazada por tipo inválido"
+  }
+  
+  registrarDecision(muestra.id, decision);
+  return decision;
+}`,
+                correctCode: `// Sistema Automatizado de Recolección y Análisis de Muestras v2.8
+function procesarMuestra(muestra) {
+  
+  const UMBRAL_CALIDAD = 95;
+  const CONTAMINACION_MAX = 2; // en %
 
+  let decision = "Rechazada";
+  let necesitaEsterilizacion = false;
+  
+  function esTipoValido(tipo) {
+    const TIPOS_VALIDOS = ['hielo', 'mineral', 'organico'];
+    return TIPOS_VALIDOS.includes(tipo);
+  }
+
+  function esterilizar(muestraAProcesar) {
+    console.log("Esterilizando muestra " + muestraAProcesar.id);
+    return true;
+  }
+
+  console.log("Analizando muestra tipo: " + muestra.tipo);
+
+  if (esTipoValido(muestra.tipo)) {
+    // Análisis de contaminación
+    if (muestra.contaminacion > CONTAMINACION_MAX) {
+      necesitaEsterilizacion = true;
+    }
+    
+    if (necesitaEsterilizacion == true) {
+      esterilizar(muestra);
+    }
+
+    // Análisis de calidad solo para tipos válidos
+    if (muestra.calidad > UMBRAL_CALIDAD) {
+      decision = "Aceptada para Almacenamiento";
+      almacenarMuestraEnBodega(muestra);
+    } else {
+      decision = "Rechazada por baja calidad";
+    }
   } else {
     decision = "Rechazada por tipo inválido";
   }
@@ -531,22 +673,17 @@ function procesarMuestra(muestra) {
     }
     playErrorSound() { this.playSound(200, 500, 'sawtooth'); }
     
-    // --- MÉTODOS DE LA CONSOLA ELIMINADOS ---
-
     showFeedback(message, type) {
         const feedbackBar = document.getElementById('feedback-bar');
         if (!feedbackBar) return;
 
-        // Limpiar timeout anterior si existe
         clearTimeout(this.feedbackTimeout);
 
         feedbackBar.textContent = message;
-        feedbackBar.className = `feedback-bar ${type}`; // Reemplaza todas las clases
+        feedbackBar.className = `feedback-bar ${type}`;
         
-        // Mostrar la barra
         feedbackBar.classList.remove('hidden');
 
-        // Ocultar después de 3 segundos
         this.feedbackTimeout = setTimeout(() => {
             feedbackBar.classList.add('hidden');
         }, 3000);
@@ -583,7 +720,6 @@ function procesarMuestra(muestra) {
     }
 
     bindEvents() {
-        // Tutorial navigation
         document.getElementById('tutorialPrev').addEventListener('click', () => {
             this.playUISound();
             if (this.currentTutorialStep > 1) this.updateTutorialStep(this.currentTutorialStep - 1);
@@ -599,7 +735,6 @@ function procesarMuestra(muestra) {
             this.startMission();
         });
 
-        // File explorer
         document.querySelectorAll('.file-item').forEach(item => {
             item.addEventListener('click', () => {
                 this.playUISound();
@@ -607,7 +742,6 @@ function procesarMuestra(muestra) {
             });
         });
 
-        // Editor controls
         document.getElementById('compileBtn').addEventListener('click', () => {
             this.playUISound();
             this.compileCode();
@@ -618,9 +752,6 @@ function procesarMuestra(muestra) {
             this.resetModule();
         });
 
-        // --- EVENTO DEL BOTÓN DE LIMPIAR CONSOLA ELIMINADO ---
-
-        // Code area typing
         const codeArea = document.getElementById('codeArea');
         let typingTimeout;
         codeArea.addEventListener('input', () => {
@@ -629,7 +760,6 @@ function procesarMuestra(muestra) {
             this.updateLineNumbers();
         });
 
-        // Completion screen events
         document.getElementById('copyPasswordBtn').addEventListener('click', () => {
             this.playUISound();
             this.copyPassword();
@@ -644,7 +774,6 @@ function procesarMuestra(muestra) {
     startMission() {
         document.getElementById('tutorialModal').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
-        // --- LLAMADA A LA CONSOLA ELIMINADA ---
         this.startTime = Date.now();
         this.timerInterval = setInterval(() => this.updateTimer(), 1000);
     }
@@ -673,7 +802,6 @@ function procesarMuestra(muestra) {
         document.getElementById('resetBtn').disabled = false;
 
         this.updateLineNumbers();
-        // --- LLAMADAS A LA CONSOLA ELIMINADAS ---
     }
 
     updateLineNumbers() {
@@ -694,8 +822,6 @@ function procesarMuestra(muestra) {
         const module = this.modules[this.currentModule];
         const correctCode = module.correctCode.trim();
 
-        // --- MENSAJE DE COMPILACIÓN ELIMINADO ---
-
         setTimeout(() => {
             if (this.normalizeCode(currentCode) === this.normalizeCode(correctCode)) {
                 this.playSuccessSound();
@@ -703,10 +829,9 @@ function procesarMuestra(muestra) {
                 this.markModuleComplete(this.currentModule);
             } else {
                 this.playErrorSound();
-                // --- BUCLE DE ERRORES ELIMINADO ---
                 this.showFeedback('❌ ERRORES DETECTADOS. Revisa la sintaxis del código.', 'error');
             }
-        }, 500); // Reducido el tiempo de espera
+        }, 500);
     }
 
     normalizeCode(code) {
@@ -732,7 +857,6 @@ function procesarMuestra(muestra) {
         const module = this.modules[this.currentModule];
         document.getElementById('codeArea').value = module.corruptCode;
         this.updateLineNumbers();
-        // --- MENSAJE DE REINICIO ELIMINADO ---
     }
 
     showCompletionScreen() {
@@ -787,12 +911,10 @@ function procesarMuestra(muestra) {
     }
 }
 
-// Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.aurora = new AuroraIDE();
 });
 
-// Resume audio context on user interaction
 document.addEventListener('click', function resumeAudio() {
     if (window.aurora && window.aurora.audioContext && window.aurora.audioContext.state === 'suspended') {
         window.aurora.audioContext.resume();
