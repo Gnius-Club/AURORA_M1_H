@@ -1264,6 +1264,14 @@ body::before {
   text-shadow: var(--glow-accent);
 }
 
+.screenshot-note {
+    color: var(--aurora-text-dim);
+    font-style: italic;
+    margin-top: 1.5rem;
+    margin-bottom: 0;
+    font-size: 1.1rem;
+}
+
 .password-section {
   background: var(--aurora-surface);
   border: 2px solid var(--aurora-primary);
