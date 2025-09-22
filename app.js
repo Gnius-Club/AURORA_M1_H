@@ -1,426 +1,210 @@
-// A.U.R.O.R.A. Mission 1 - Advanced IDE JavaScript
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.U.R.O.R.A. - Misión 1: Análisis de Protocolos Estructurales</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Scanlines overlay -->
+    <div class="scanlines"></div>
+    
+    <!-- Tutorial Modal -->
+    <div id="tutorial-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="tutorial-title">Tutorial - Especialista de Sistemas</h2>
+                <div class="tutorial-progress">
+                    <div class="progress-dots">
+                        <span class="dot active" data-step="1"></span>
+                        <span class="dot" data-step="2"></span>
+                        <span class="dot" data-step="3"></span>
+                        <span class="dot" data-step="4"></span>
+                        <span class="dot" data-step="5"></span>
+                        <span class="dot" data-step="6"></span>
+                        <span class="dot" data-step="7"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="tutorial-icon">🎯</div>
+                <div class="tutorial-content">
+                    <p id="tutorial-description">Bienvenido, Especialista de Sistemas. La corrupción de datos ha afectado las estructuras lógicas de A.U.R.O.R.A. Tu misión es reparar las listas y los bucles en 5 módulos críticos.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="tutorial-prev" class="btn btn-secondary" style="display: none;">← Anterior</button>
+                <button id="tutorial-next" class="btn btn-primary">Siguiente →</button>
+                <button id="tutorial-start" class="btn btn-primary" style="display: none;">[ INICIAR ANÁLISIS ]</button>
+            </div>
+        </div>
+    </div>
 
-class AuroraIDE {
-    constructor() {
-        this.currentModule = null;
-        this.completedModules = new Set();
-        this.currentTutorialStep = 1;
-        this.audioContext = null;
-        this.timerInterval = null;
-        this.startTime = 0;
-        this.feedbackTimeout = null;
-        this.finalTime = "00:00";
-        
-        // Tutorial data
-        this.tutorialSteps = [
-            {
-                step: 1,
-                title: "Bienvenido/a, Ingeniero/a Senior",
-                description: "La corrupción ha alcanzado el núcleo lógico de A.U.R.O.R.A. Tu misión es auditar 6 módulos en busca de errores sutiles de lógica, estado y sintaxis.",
-                icon: "👨‍💻"
-            },
-            {
-                step: 2,
-                title: "Explorador de Archivos Avanzado",
-                description: "Tu acceso ha sido ampliado. Navega por la estructura de archivos del sistema para seleccionar un módulo.",
-                icon: "📁"
-            },
-            {
-                step: 3,
-                title: "Entorno de Desarrollo Profesional",
-                description: "Este es tu entorno de desarrollo. Nota el resaltado de sintaxis avanzado y la capacidad de navegación mejorada.",
-                icon: "💻"
-            },
-            {
-                step: 4,
-                title: "¡ALERTA DE CÓDIGO COMENTADO!",
-                description: "¡CUIDADO! Un simple '//' puede desactivar una línea de código vital. Si ves un comando importante en gris, podría ser un error. Bórralo para reactivarlo.",
-                icon: "⚠️"
-            },
-            {
-                step: 5,
-                title: "Documentación Avanzada",
-                description: "Tu documentación ahora incluye detalles sobre operadores lógicos y sintaxis básica. Úsala como tu guía principal.",
-                icon: "📚"
-            },
-            {
-                step: 6,
-                title: "Interfaz Responsiva",
-                description: "En dispositivos móviles, la documentación y la consola se ubicarán en la parte inferior para optimizar el espacio.",
-                icon: "📱"
-            },
-            {
-                step: 7,
-                title: "Iniciar Auditoría",
-                description: "¡Todo listo! Comienza tu auditoría de código profesional.",
-                icon: "🚀"
-            }
-        ];
+    <!-- Completion Modal -->
+    <div id="completion-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1>¡INTEGRIDAD ESTRUCTURAL RESTAURADA!</h1>
+            </div>
+            <div class="modal-body">
+                <div class="completion-icon">🔧✅</div>
+                <div id="password-display">
+                    <div class="password-label">TU CÓDIGO DE ACCESO:</div>
+                    <div class="password-value" id="generated-password">AURORA1M2I3S4I5O6N7</div>
+                </div>
+                <p class="completion-text">Guarda tu contraseña en un lugar seguro. La necesitarás para acceder al PROTOCOLO 2 de A.U.R.O.R.A.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="copy-password" class="btn btn-primary">[ COPIAR CONTRASEÑA ]</button>
+                <button id="return-terminal" class="btn btn-secondary">[ REGRESAR A LA TERMINAL ]</button>
+            </div>
+        </div>
+    </div>
 
-        // Module data - REESCRITO CON CÓDIGO MÁS LARGO Y DIFÍCIL
-        this.modules = {
-             energia: {
-                id: "energia",
-                name: "Modulo_GestionDeEnergia.js",
-                icon: "⚡",
-                corruptCode: `// Protocolo de distribución de energía v4.2
-function gestionarCicloEnergia(datosSensor, modoOperacion) {
-  // Constantes de operación
-  const CAPACIDAD_MAXIMA = 5000;
-  const NIVEL_CRITICO = 1000;
-  const UMBRAL_PANELES = 2500;
-  const CONSUMO_BASE = 50;
+    <!-- Main Interface -->
+    <div id="main-interface">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>A.U.R.O.R.A. - MISIÓN 1: ANÁLISIS DE PROTOCOLOS ESTRUCTURALES</h1>
+                <div class="mission-status">
+                    <span>ESTADO:</span>
+                    <span id="mission-status" class="status-indicator">ANÁLISIS EN PROGRESO</span>
+                    <span class="modules-counter">MÓDULOS: <span id="completed-modules">0</span>/5</span>
+                </div>
+            </div>
+        </header>
 
-  let consumoActual = datosSensor.consumo + CONSUMO_BASE;
-  let nivelBateria = datosSensor.bateria;
-  let estadoSistema = "Estable";
-  let solarPanelStatus = "Inactivo";
+        <!-- Main Content Grid -->
+        <div class="main-content">
+            <!-- Modules Panel -->
+            <div class="panel modules-panel" id="modules-panel">
+                <div class="panel-header">
+                    <h3>📋 MÓDULOS DEL SISTEMA</h3>
+                </div>
+                <div class="panel-content">
+                    <div class="module-list">
+                        <button class="module-btn" data-module="energia">
+                            <div class="module-icon">⚡️</div>
+                            <div class="module-info">
+                                <div class="module-name">Modulo_GestionDeEnergia.js</div>
+                                <div class="module-status" id="status-energia">🔴 CORRUPTO</div>
+                            </div>
+                        </button>
+                        <button class="module-btn" data-module="herramientas">
+                            <div class="module-icon">🛠️</div>
+                            <div class="module-info">
+                                <div class="module-name">Modulo_Herramientas.js</div>
+                                <div class="module-status" id="status-herramientas">🔴 CORRUPTO</div>
+                            </div>
+                        </button>
+                        <button class="module-btn" data-module="navegacion">
+                            <div class="module-icon">🗺️</div>
+                            <div class="module-info">
+                                <div class="module-name">Modulo_NavegacionAvanzada.js</div>
+                                <div class="module-status" id="status-navegacion">🔴 CORRUPTO</div>
+                            </div>
+                        </button>
+                        <button class="module-btn" data-module="comunicaciones">
+                            <div class="module-icon">🛰️</div>
+                            <div class="module-info">
+                                <div class="module-name">Modulo_Comunicaciones.js</div>
+                                <div class="module-status" id="status-comunicaciones">🔴 CORRUPTO</div>
+                            </div>
+                        </button>
+                        <button class="module-btn" data-module="diagnostico">
+                            <div class="module-icon">🩺</div>
+                            <div class="module-info">
+                                <div class="module-name">Modulo_Diagnostico.js</div>
+                                <div class="module-status" id="status-diagnostico">🔴 CORRUPTO</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-  function logPowerState(estado, nivel) {
-    let logMsg = "Estado: " + estado + " // Nivel Batería: " + nivel;
-    console.log(logMsg)
-  }
+            <!-- Code Editor Panel -->
+            <div class="panel editor-panel" id="editor-panel">
+                <div class="panel-header">
+                    <h3>💻 EDITOR DE CÓDIGO</h3>
+                    <div class="editor-info">
+                        <span id="current-module-name">Selecciona un módulo</span>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="code-editor-container">
+                        <div class="line-numbers" id="line-numbers">
+                            <div>1</div>
+                        </div>
+                        <textarea id="code-editor" class="code-editor" placeholder="// Selecciona un módulo para comenzar la depuración..."></textarea>
+                    </div>
+                    <div class="editor-controls">
+                        <button id="verify-btn" class="btn btn-primary" disabled>[ COMPILAR Y VERIFICAR ]</button>
+                        <button id="reset-btn" class="btn btn-secondary" disabled>[ REINICIAR MÓDULO ]</button>
+                    </div>
+                    <div id="feedback-area" class="feedback-area"></div>
+                </div>
+            </div>
 
-  // Activa paneles si es necesario y si no están ya activos
-  if (nivelBateria <= UMBRAL_PANELES && solarPanelStatus = "Inactivo") {
-    console.log("Activando paneles solares por bajo nivel.");
-    // activarPanelesSolares();
-    solarPanelStatus = "Activo";
-  }
+            <!-- Technical Manual Panel -->
+            <div class="panel manual-panel" id="manual-panel">
+                <div class="panel-header">
+                    <h3>📚 MANUAL TÉCNICO</h3>
+                </div>
+                <div class="panel-content">
+                    <div class="manual-section">
+                        <h4>🔧 REGLAS DE SINTAXIS</h4>
+                        <div class="rule">
+                            <strong>Punto Final (;)</strong><br>
+                            Cada línea de comando debe terminar con punto y coma
+                        </div>
+                        <div class="rule">
+                            <strong>Burbujas de Texto ("")</strong><br>
+                            Los textos van entre comillas dobles
+                        </div>
+                        <div class="rule">
+                            <strong>Abrazos de Grupo {}</strong><br>
+                            Las llaves agrupan bloques de código
+                        </div>
+                        <div class="rule">
+                            <strong>Contenedores ()</strong><br>
+                            Los paréntesis contienen parámetros
+                        </div>
+                    </div>
 
-  // Lógica de balanceo de carga según el modo
-  if (modoOperacion == "Combate") {
-    consumoActual *= 2.5; // El modo combate consume mucho más
-  } else if (modoOperacion == "Sigilo") {
-    // balancearCargaSigilo();
-  }
+                    <div class="manual-section highlighted">
+                        <h4>📊 LISTAS DE DATOS (Arrays)</h4>
+                        <div class="rule">
+                            <strong>Estructura: [elemento1, elemento2, elemento3]</strong><br>
+                            • Los corchetes [] delimitan la lista<br>
+                            • Las comas , separan elementos<br>
+                            • Ejemplo: ["Basalto", "Pirita", "Hierro"]
+                        </div>
+                    </div>
 
-  // Lógica de distribución principal
-  if (consumoActual > nivelBateria); {
-    estadoSistema = "Déficit Energético";
-    // Redireccionar energía de sistemas no críticos
-    redigirEnergia(consumoActual, nivelBateria);
-  } else if (nivelBateria >= CAPACIDAD_MAXIMA) {
-    console.log("Batería llena, desactivando carga.");
-    if (solarPanelStatus == "Activo") {
-      desactivarPanelesSolares()
-    }
-  }
+                    <div class="manual-section highlighted">
+                        <h4>🔄 BUCLES FOR</h4>
+                        <div class="rule">
+                            <strong>for (inicialización; condición; incremento)</strong><br>
+                            • Punto y coma ; separa cada parte<br>
+                            • Ejemplo: for (let i = 0; i < array.length; i++)
+                        </div>
+                    </div>
 
-  logPowerState(estadoSistema, nivelBateria);
-  return estadoSistema
-}`,
-                correctCode: `// Protocolo de distribución de energía v4.2
-function gestionarCicloEnergia(datosSensor, modoOperacion) {
-  // Constantes de operación
-  const CAPACIDAD_MAXIMA = 5000;
-  const NIVEL_CRITICO = 1000;
-  const UMBRAL_PANELES = 2500;
-  const CONSUMO_BASE = 50;
+                    <div class="manual-section">
+                        <h4>⚠️ IMPORTANTE</h4>
+                        <div class="rule warning">
+                            El sistema distingue entre mayúsculas y minúsculas.<br>
+                            <code>Variable</code> ≠ <code>variable</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  let consumoActual = datosSensor.consumo + CONSUMO_BASE;
-  let nivelBateria = datosSensor.bateria;
-  let estadoSistema = "Estable";
-  let solarPanelStatus = "Inactivo";
-
-  function logPowerState(estado, nivel) {
-    let logMsg = "Estado: " + estado + " // Nivel Batería: " + nivel;
-    console.log(logMsg);
-  }
-
-  // Activa paneles si es necesario y si no están ya activos
-  if (nivelBateria <= UMBRAL_PANELES && solarPanelStatus == "Inactivo") {
-    console.log("Activando paneles solares por bajo nivel.");
-    activarPanelesSolares();
-    solarPanelStatus = "Activo";
-  }
-
-  // Lógica de balanceo de carga según el modo
-  if (modoOperacion == "Combate") {
-    consumoActual *= 2.5; // El modo combate consume mucho más
-  } else if (modoOperacion == "Sigilo") {
-    balancearCargaSigilo();
-  }
-
-  // Lógica de distribución principal
-  if (consumoActual > nivelBateria) {
-    estadoSistema = "Déficit Energético";
-    // Redireccionar energía de sistemas no críticos
-    redigirEnergia(consumoActual, nivelBateria);
-  } else if (nivelBateria >= CAPACIDAD_MAXIMA) {
-    console.log("Batería llena, desactivando carga.");
-    if (solarPanelStatus == "Activo") {
-      desactivarPanelesSolares();
-    }
-  }
-
-  logPowerState(estadoSistema, nivelBateria);
-  return estadoSistema;
-}`,
-            },
-            navegacion: {
-                id: "navegacion",
-                name: "Modulo_NavegacionAvanzada.js",
-                icon: "🗺️",
-                corruptCode: `// Sistema de Navegación Inercial Asistida v2.3
-function calcularVectorDeRuta(coordenadas, threatLevel) {
-  let velocidadCrucero = 1500;
-  let navigationStatus = "Calculando...";
-  const VELOCIDAD_WARP = 9500;
-
-  // Función anidada para calcular consumo de combustible
-  function estimarConsumo(distancia, velocidad) {
-    let factor = velocidad > 2000 ? 1.5 : 1.1;
-    let consumoEstimado = (distancia / velocidad) * factor
-    // return consumoEstimado;
-  }
-  
-  function plotEvasiveManeuver(threat) {
-    console.log("Amenaza de nivel " + threat + " detectada. Maniobra evasiva...")
-    // return "Ruta evasiva trazada";
-  }
-
-  // Ajuste de velocidad para rutas largas o peligrosas
-  if (coordenadas.distanciaTotal > 100000 || threatLevel > 75%) {
-    navigationStatus = "Ruta Larga/Peligrosa";
-    velocidadCrucero = VELOCIDAD_WARP;
-  }
-
-  let tiempoEstimado = coordenadas.distanciaTotal / velocidadCrucero;
-  let consumoFinal = estimarConsumo(coordenadas.distanciaTotal, velocidadCrucero);
-  let maniobra = null
-
-  if (coordenadas.hayObstaculos == true) {
-    console.log("¡ALERTA! recalculando por obstáculos.";
-    maniobra = plotEvasiveManeuver(threatLevel)
-  }
-  
-  if (navigationStatus = "Calculando...") {
-    navigationStatus = "Ruta Estándar Calculada";
-  }
-
-  console.log("Cálculo de vector finalizado."
-  return {
-    velocidad: velocidadCrucero,
-    tiempo: tiempoEstimado
-    consumo: consumoFinal,
-    maniobra: maniobra,
-    estado: navigationStatus
-  };
-}`,
-                correctCode: `// Sistema de Navegación Inercial Asistida v2.3
-function calcularVectorDeRuta(coordenadas, threatLevel) {
-  let velocidadCrucero = 1500;
-  let navigationStatus = "Calculando...";
-  const VELOCIDAD_WARP = 9500;
-
-  // Función anidada para calcular consumo de combustible
-  function estimarConsumo(distancia, velocidad) {
-    let factor = velocidad > 2000 ? 1.5 : 1.1;
-    let consumoEstimado = (distancia / velocidad) * factor;
-    return consumoEstimado;
-  }
-  
-  function plotEvasiveManeuver(threat) {
-    console.log("Amenaza de nivel " + threat + " detectada. Maniobra evasiva...");
-    return "Ruta evasiva trazada";
-  }
-
-  // Ajuste de velocidad para rutas largas o peligrosas
-  if (coordenadas.distanciaTotal > 100000 || threatLevel > 75) {
-    navigationStatus = "Ruta Larga/Peligrosa";
-    velocidadCrucero = VELOCIDAD_WARP;
-  }
-
-  let tiempoEstimado = coordenadas.distanciaTotal / velocidadCrucero;
-  let consumoFinal = estimarConsumo(coordenadas.distanciaTotal, velocidadCrucero);
-  let maniobra = null;
-
-  if (coordenadas.hayObstaculos == true) {
-    console.log("¡ALERTA! recalculando por obstáculos.");
-    maniobra = plotEvasiveManeuver(threatLevel);
-  }
-  
-  if (navigationStatus == "Calculando...") {
-    navigationStatus = "Ruta Estándar Calculada";
-  }
-
-  console.log("Cálculo de vector finalizado.");
-  return {
-    velocidad: velocidadCrucero,
-    tiempo: tiempoEstimado,
-    consumo: consumoFinal,
-    maniobra: maniobra,
-    estado: navigationStatus
-  };
-}`,
-            },
-            comunicaciones: {
-                id: "comunicaciones",
-                name: "Modulo_Comunicaciones.js",
-                icon: "🛰️",
-                corruptCode: `// Protocolo de Transmisión de Datos Cuánticos v3.0
-function procesarYEnviarPaquete(datos, prioridad) {
-  const POTENCIA_MINIMA = 75;
-  const TASA_ENCRIPTACION = 128;
-  let transmissionLog = [];
-
-  function encriptar(data, tasa) {
-    if (!data) { return null; }
-    // Simulación de encriptación
-    return "ENC_" + data.substring(0, 10);
-  }
-
-  function checkSignalIntegrity(potencia) {
-    // Si la potencia es muy alta, puede haber interferencia
-    if (potencia > 150) {
-      return "FAIL";
-    }
-    return "OK";
-  }
-  
-  let paqueteEncriptado = encriptar(datos.mensaje, TASA_ENCRIPTACION);
-  let potenciaTransmision = datos.potencia;
-  
-  if (prioridad == "URGENTE") {
-    potenciaTransmision *= 1.5
-  }
-
-  // Verificación de la potencia
-  if (potenciaTransmision < POTENCIA_MINIMA); {
-    potenciaTransmision = POTENCIA_MINIMA;
-  }
-
-  let integrity = checkSignalIntegrity(potenciaTransmision);
-  if (integrity = "FAIL") {
-    transmissionLog.push("Integridad Fallida. Abortando.");
-    // retransmitirPaquete(paqueteEncriptado);
-  } else {
-    // Transmitir el paquete de datos
-    transmitirPaquete(paqueteEncriptado, potenciaTransmision)
-    transmissionLog.push("Paquete transmitido con éxito.")
-  }
-
-  return transmissionLog
-}`,
-                correctCode: `// Protocolo de Transmisión de Datos Cuánticos v3.0
-function procesarYEnviarPaquete(datos, prioridad) {
-  const POTENCIA_MINIMA = 75;
-  const TASA_ENCRIPTACION = 128;
-  let transmissionLog = [];
-
-  function encriptar(data, tasa) {
-    if (!data) { return null; }
-    // Simulación de encriptación
-    return "ENC_" + data.substring(0, 10);
-  }
-
-  function checkSignalIntegrity(potencia) {
-    // Si la potencia es muy alta, puede haber interferencia
-    if (potencia > 150) {
-      return "FAIL";
-    }
-    return "OK";
-  }
-  
-  let paqueteEncriptado = encriptar(datos.mensaje, TASA_ENCRIPTACION);
-  let potenciaTransmision = datos.potencia;
-  
-  if (prioridad == "URGENTE") {
-    potenciaTransmision *= 1.5;
-  }
-
-  // Verificación de la potencia
-  if (potenciaTransmision < POTENCIA_MINIMA) {
-    potenciaTransmision = POTENCIA_MINIMA;
-  }
-
-  let integrity = checkSignalIntegrity(potenciaTransmision);
-  if (integrity == "FAIL") {
-    transmissionLog.push("Integridad Fallida. Abortando.");
-    retransmitirPaquete(paqueteEncriptado);
-  } else {
-    // Transmitir el paquete de datos
-    transmitirPaquete(paqueteEncriptado, potenciaTransmision);
-    transmissionLog.push("Paquete transmitido con éxito.");
-  }
-
-  return transmissionLog;
-}`,
-            },
-            diagnostico: {
-                id: "diagnostico",
-                name: "Modulo_Diagnostico.js",
-                icon: "🩺",
-                corruptCode: `// Sistema de Autodiagnóstico y Mantenimiento Predictivo v2.1
-function ejecutarDiagnosticoProfundo() {
-  const TEMP_MAXIMA_CPU = 85;
-  const PRESION_MINIMA_CABINA = 90;
-  const HULL_INTEGRITY_MIN = 99;
-
-  let informe = {
-    cpu: { temp: 92, estado: "OK" },
-    cabina: { presion: 88, estado: "OK" },
-    casco: { integridad: 98, estado: "OK" },
-    general: "Sin Novedad",
-  };
-
-  // Verificación de temperatura del núcleo
-  if (informe.cpu.temp > TEMP_MAXIMA_CPU) {
-    informe.cpu.estado = "Sobrecalentamiento Crítico";
-    // activarSistemaRefrigeracionForzada();
-  }
-
-  // Verificación de presión y casco
-  if (informe.cabina.presion < PRESION_MINIMA_CABINA) {
-    informe.cabina.estado = "Despresurización";
-    sellarCompuertas()
-  } else if (informe.casco.integridad < HULL_INTEGRITY_MIN%) {
-    informe.casco.estado = "Microfisuras Detectadas";
-    // activarReparadoresNano();
-  }
-  
-  let alertasActivas = 0;
-  if (informe.cpu.estado !== "OK") { alertasActivas++; }
-  if (informe.cabina.estado !== "OK") { alertasActivas++; }
-  if (informe.casco.estado == "OK") { 
-    // No hacer nada si el casco está bien
-  } else {
-    alertasActivas++
-  }
-
-  // Generación del informe final
-  if (alertasActivas > 1) {
-    informe.general = "¡ALERTA MÚLTIPLE DETECTADA!";
-    // activarProtocoloEmergencia(
-  } else if (alertasActivas = 1) {
-    informe.general = "Alerta Única Detectada. Revisar sistema.";
-  }
-
-  return informe;
-`,
-                correctCode: `// Sistema de Autodiagnóstico y Mantenimiento Predictivo v2.1
-function ejecutarDiagnosticoProfundo() {
-  const TEMP_MAXIMA_CPU = 85;
-  const PRESION_MINIMA_CABINA = 90;
-  const HULL_INTEGRITY_MIN = 99;
-
-  let informe = {
-    cpu: { temp: 92, estado: "OK" },
-    cabina: { presion: 88, estado: "OK" },
-    casco: { integridad: 98, estado: "OK" },
-    general: "Sin Novedad",
-  };
-
-  // Verificación de temperatura del núcleo
-  if (informe.cpu.temp > TEMP_MAXIMA_CPU) {
-    informe.cpu.estado = "Sobrecalentamiento Crítico";
-    activarSistemaRefrigeracionForzada();
-  }
-
-  // Verificación de presión y casco
-  if (informe.cabina.presion < PRESION_MINIMA_CABINA) {
-    informe.cabina.estado = "Despresurización";
-    sellarCompuertas();
-  } else if (informe.casco.integridad < HULL_INTEGRITY_MIN) {
-    informe.casco.estado = "Mi
+    <script src="app.js"></script>
+</body>
+</html>
